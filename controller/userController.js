@@ -18,6 +18,8 @@ exports.postUserData = async (req, res) => {
   try {
     const myCloud = await cloudinary.uploader.upload(req.file.path, {
       folder: "basicusers",
+      use_filename: true,
+      unique_filename: false,
     });
 
     const newUserData = {
@@ -57,6 +59,8 @@ exports.updateUserData = async (req, res) => {
       await cloudinary.uploader.destroy(userData.photo.public_id);
       const myCloud = await cloudinary.uploader.upload(req.file.path, {
         folder: "basicusers",
+        use_filename: true,
+        unique_filename: false,
       });
 
       const updateUser = await usermodel.findByIdAndUpdate(

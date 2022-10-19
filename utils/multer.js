@@ -3,8 +3,9 @@ const path = require("path");
 
 // Multer config
 module.exports = multer({
-  storage: multer.diskStorage({}),
-  fileFilter: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
+  storage: multer.diskStorage({
+    filename: (req, file, cb) => {
+      cb(null, file.originalname);
+    },
+  }),
 });
