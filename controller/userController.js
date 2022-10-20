@@ -1,6 +1,6 @@
 const usermodel = require("../model/usermodel");
 const cloudinary = require("../utils/cloudinary");
-
+const manageFile = require("../utils/managefile");
 exports.getUserData = async (req, res) => {
   try {
     const allUser = await usermodel.find({});
@@ -16,29 +16,41 @@ exports.getUserData = async (req, res) => {
 
 exports.postUserData = async (req, res) => {
   try {
-    const myCloud = await cloudinary.uploader.upload(req.file.path, {
-      folder: "basicusers",
-      use_filename: true,
-      unique_filename: false,
-    });
+    let myCloud;
+    let newUserData;
+    let userResult;
 
-    const newUserData = {
-      name: req.body.name,
-      email: req.body.email,
-      address: req.body.address,
-      role: req.body.role,
-      phone: req.body.phone,
-      photo: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
-    };
-    const userResult = await usermodel.create(newUserData);
-    res.status(201).json({
-      status: true,
-      data: userResult,
-      message: "User data posted",
-    });
+    if (!req.file) {
+      return res.status(203).json({
+        status: false,
+        data: null,
+        message: "Image missing!",
+      });
+    } else {
+      myCloud = await cloudinary.uploader.upload(req.file.path, {
+        folder: "basicusers",
+        use_filename: true,
+        unique_filename: false,
+      });
+      manageFile.deleteFile(req.file.path);
+      newUserData = {
+        name: req.body.name,
+        email: req.body.email,
+        address: req.body.address,
+        role: req.body.role,
+        phone: req.body.phone,
+        photo: {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        },
+      };
+      userResult = await usermodel.create(newUserData);
+      res.status(201).json({
+        status: true,
+        data: userResult,
+        message: "User data posted",
+      });
+    }
   } catch (error) {
     res.status(500).json({ status: false, data: null, message: error });
   }
@@ -62,6 +74,7 @@ exports.updateUserData = async (req, res) => {
         use_filename: true,
         unique_filename: false,
       });
+      manageFile.deleteFile(req.file.path);
 
       const updateUser = await usermodel.findByIdAndUpdate(
         req.params.id,
