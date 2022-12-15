@@ -12,14 +12,20 @@ dbconnect();
 
 const port = process.env.PORT; // port no
 
+//load the path module which comes along with express module
+const path = require("path");
+
 //middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+// using static path
+app.use(express.static("public"));
+
 // home page load
 app.get("/", (req, res) => {
-  res.send("Hello");
+  res.sendFile("index.html");
 });
 
 //Api routes

@@ -4,11 +4,41 @@ const manageFile = require("../utils/managefile");
 exports.getUserData = async (req, res) => {
   try {
     const allUser = await usermodel.find({});
-    res.status(200).json({
-      status: "true",
-      data: allUser,
-      message: "Data fetched successfully!!!",
-    });
+
+    let page = req.query.page;
+    let limit = 9;
+
+    if (page) {
+      let totalpages = Math.ceil(allUser.length / limit);
+
+      if (page == 0 || page > totalpages) {
+        return res.status(500).json({
+          status: false,
+          data: null,
+          message: "Error!!! Page number not found",
+        });
+      } else {
+        let startIndex = (page - 1) * limit;
+        let endIndex = page * limit;
+
+        const resultUsers = allUser.slice(startIndex, endIndex);
+        res.status(200).json({
+          status: "true",
+          data: {
+            userdata: resultUsers,
+            totalpages: totalpages,
+            totaluser: allUser.length,
+          },
+          message: "Data fetched successfully!!!",
+        });
+      }
+    } else {
+      return res.status(500).json({
+        status: false,
+        data: null,
+        message: "Error!!! Page number not inserted",
+      });
+    }
   } catch (error) {
     res.status(500).json({ status: false, data: null, message: error });
   }
