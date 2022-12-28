@@ -4,6 +4,7 @@ const manageFile = require("../utils/managefile");
 exports.getUserData = async (req, res) => {
   try {
     const allUser = await usermodel.find({});
+    let userName;
 
     let page = req.query.page;
     let limit = 9;
@@ -21,16 +22,33 @@ exports.getUserData = async (req, res) => {
         let startIndex = (page - 1) * limit;
         let endIndex = page * limit;
 
-        const resultUsers = allUser.slice(startIndex, endIndex);
-        res.status(200).json({
-          status: "true",
-          data: {
-            userdata: resultUsers,
-            totalpages: totalpages,
-            totaluser: allUser.length,
-          },
-          message: "Data fetched successfully!!!",
-        });
+        if (req.query.name) {
+          userName = await usermodel.find({
+            name: { $regex: req.query.name, $options: "i" },
+          });
+          const resultUsers = userName.slice(startIndex, endIndex);
+          let totalQueryPages = Math.ceil(userName.length / limit);
+          res.status(200).json({
+            status: "true",
+            data: {
+              userdata: resultUsers,
+              totalpages: totalQueryPages,
+              totaluser: userName.length,
+            },
+            message: "Data fetched successfully!!!",
+          });
+        } else {
+          const resultUsers = allUser.slice(startIndex, endIndex);
+          res.status(200).json({
+            status: "true",
+            data: {
+              userdata: resultUsers,
+              totalpages: totalpages,
+              totaluser: allUser.length,
+            },
+            message: "Data fetched successfully!!!",
+          });
+        }
       }
     } else {
       return res.status(500).json({
