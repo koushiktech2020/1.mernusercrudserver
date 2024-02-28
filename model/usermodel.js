@@ -7,15 +7,11 @@ const userSchema = mongoose.Schema(
     address: String,
     role: String,
     phone: String,
-    photo: {
-      public_id: String,
-      url: String,
-    },
+    photopublicid: String,
+    photopublicurl: String,
   },
   { versionKey: false },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("Users", userSchema);
-
-console.log("User Model is created");

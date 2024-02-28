@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const dotenv = require("dotenv");
+
 const { dbconnect } = require("./utils/dbconnect");
-const userRoutes = require("./routes/user");
+const userRoutes = require("./routes/userroute");
 
 dotenv.config();
 
@@ -29,7 +30,7 @@ app.get("/", (req, res) => {
 });
 
 //Api routes
-app.use("/api", userRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(port, () => {
   console.log(`Server has started at ${port}`);
