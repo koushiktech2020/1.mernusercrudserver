@@ -9,7 +9,7 @@ const {
   getUserDetails,
   updateUserData,
   deleteUserData,
-} = require("../controller/usercontrollers");
+} = require("../controller/usercontroller");
 
 //add new user
 userrouter.post("/addnewuser", addNewUser);
