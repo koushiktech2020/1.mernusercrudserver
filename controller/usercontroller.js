@@ -1,155 +1,81 @@
-const Users = require("../model/usermodel");
-const cloudinary = require("../utils/cloudinary");
-const { deleteFile } = require("../utils/managefile");
+const Users = require("../model/usermodel"); // Importing User model
+const cloudinary = require("../utils/cloudinary"); //Import cloudinary
 
-//add new user
+// Controller function to add a new user
 exports.addNewUser = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(203).json({
-        status: false,
-        message: "Image missing!",
-      });
-    } else {
-      const myCloud = await cloudinary.uploader.upload(req.file.path, {
-        folder: "basicusers",
-        use_filename: true,
-        unique_filename: false,
-      });
+    const newUserData = { ...req.body }; // Extracting user data from request body
+    const userResult = await Users.create(newUserData); // Creating a new user in the database
 
-      deleteFile(req.file.path);
-
-      const newUserData = {
-        name: req.body.name || "",
-        email: req.body.email,
-        address: req.body.address || "",
-        role: req.body.role || "",
-        phone: req.body.phone || "",
-        photopublicid: myCloud.public_id || "",
-        photopublicurl: myCloud.secure_url || "",
-      };
-
-      const userResult = await Users.create(newUserData);
-
-      res.status(201).json({
-        status: true,
-        data: userResult,
-        message: "User data posted",
-      });
-    }
+    // Sending success response with created user data
+    res.status(201).json({
+      status: true,
+      data: userResult,
+      message: "User data posted",
+    });
   } catch (error) {
+    // Sending error response if user creation fails
     res.json({ status: false, message: error.message });
   }
 };
 
-//get all user
+// Controller function to get all users
 exports.getAllUser = async (req, res) => {
   try {
-    const allUser = await Users.find({});
+    const allUser = await Users.find({}); // Finding all users in the database
 
+    // Sending success response with all users data
     res.status(200).json({
-      status: "true",
+      status: true,
       data: allUser,
       message: "User fetched successfully!!!",
     });
   } catch (error) {
-    res.json({ status: false, message: error });
+    // Sending error response if fetching users fails
+    res.json({ status: false, message: error.message });
   }
 };
 
-//get details of a user
+// Controller function to get details of a user
 exports.getUserDetails = async (req, res) => {
   try {
-    const userResult = await Users.findById(req.params.id);
+    const userResult = await Users.findById(req.params.id); // Finding user by ID
 
+    // Sending success response with user details
     res.status(200).json({
-      status: "true",
+      status: true,
       data: userResult,
       message: "User details fetched successfully!!!",
     });
   } catch (error) {
-    res.json({ status: false, message: error });
+    // Sending error response if fetching user details fails
+    res.json({ status: false, message: error.message });
   }
 };
 
-//update user
+// Controller function to update user data
 exports.updateUserData = async (req, res) => {
   try {
-    const userData = await Users.findById(req.params.id);
+    const result = await Users.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    }); // Finding and updating user by ID
 
-    if (!userData) {
-      return res.status(404).json({
-        status: false,
-        message: "User not found",
-      });
-    }
-
-    if (req.file) {
-      //delete image in cliudinary
-      await cloudinary.uploader.destroy(userData.photo.public_id);
-
-      //upload new file in cloudinary
-      const myCloud = await cloudinary.uploader.upload(req.file.path, {
-        folder: "basicusers",
-        use_filename: true,
-        unique_filename: false,
-      });
-
-      //delete copied file from temp folder
-      manageFile.deleteFile(req.file.path);
-
-      //update user
-      const updateUser = await Users.findByIdAndUpdate(
-        req.params.id,
-        {
-          $set: {
-            name: req.body.name,
-            email: req.body.email,
-            address: req.body.address,
-            role: req.body.role,
-            phone: req.body.phone,
-            photo: {
-              public_id: myCloud.public_id,
-              url: myCloud.secure_url,
-            },
-          },
-        },
-        { new: true }
-      );
-      res.status(200).json({
-        status: true,
-        data: updateUser,
-        message: "User data has been updated",
-      });
-    } else {
-      const updateUser = await Users.findByIdAndUpdate(
-        req.params.id,
-        {
-          $set: {
-            name: req.body.name,
-            email: req.body.email,
-            address: req.body.address,
-            role: req.body.role,
-            phone: req.body.phone,
-          },
-        },
-        { new: true }
-      );
-      res.status(200).json({
-        status: true,
-        data: updateUser,
-        message: "User data has been updated",
-      });
-    }
+    // Sending success response with updated user data
+    res
+      .status(200)
+      .json({ status: true, data: result, message: "User updated" });
   } catch (error) {
-    res.status(500).json({ status: false, data: null, message: error });
+    // Sending error response if updating user fails
+    res.json({ status: false, message: error.message });
   }
 };
 
+// Controller function to delete user data
 exports.deleteUserData = async (req, res) => {
   try {
-    const userData = await Users.findById(req.params.id);
+    const userData = await Users.findById(req.params.id); // Finding user by ID
 
+    // Checking if user exists
     if (!userData) {
       return res.status(404).json({
         status: false,
@@ -158,13 +84,19 @@ exports.deleteUserData = async (req, res) => {
       });
     }
 
-    await cloudinary.uploader.destroy(userData.photo.public_id);
+    // Deleting user's image from cloudinary
+    await cloudinary.uploader.destroy(userData.photopublicid);
+
+    // Removing user from database
     await userData.remove();
+
+    // Sending success response for user deletion
     res.status(200).json({
       status: true,
-      message: "User deleted Succesfully",
+      message: "User deleted Successfully",
     });
   } catch (error) {
-    res.status(500).json({ status: false, data: null, message: error });
+    // Sending error response if deleting user fails
+    res.json({ status: false, message: error.message });
   }
 };

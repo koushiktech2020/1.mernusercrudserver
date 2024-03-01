@@ -1,37 +1,41 @@
-const express = require("express");
-const app = express();
-const cors = require("cors");
-const dotenv = require("dotenv");
+const express = require("express"); // Importing Express framework
+const app = express(); // Creating an instance of Express
+const cors = require("cors"); // Importing CORS middleware
+const dotenv = require("dotenv"); // Importing dotenv for environment variables
 
-const { dbconnect } = require("./utils/dbconnect");
-const userRoutes = require("./routes/userroute");
+// Importing custom modules
+const { dbconnect } = require("./utils/dbconnect"); // Importing function to establish database connection
+const uploadRoutes = require("./routes/uploadroute"); // Importing routes for file uploads
+const userRoutes = require("./routes/userroute"); // Importing routes for user management
 
-dotenv.config();
+dotenv.config(); // Loading environment variables from .env file
 
-// database connection
+// Establishing database connection
 dbconnect();
 
-const port = process.env.PORT; // port no
+const port = process.env.PORT; // Retrieving port number from environment variables
 
-//load the path module which comes along with express module
+// Loading the path module which comes along with the express module
 const path = require("path");
 
-//middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+// Middleware setup
+app.use(express.json()); // Parsing JSON requests
+app.use(express.urlencoded({ extended: true })); // Parsing URL-encoded requests
+app.use(cors()); // Handling Cross-Origin Resource Sharing
 
-// using static path
+// Serving static files from the 'public' directory
 app.use(express.static("public"));
 
-// home page load
+// Route for serving the home page
 app.get("/", (req, res) => {
-  res.sendFile("index.html");
+  res.sendFile("index.html"); // Sending the HTML file for the home page
 });
 
-//Api routes
-app.use("/api/user", userRoutes);
+// API routes
+app.use("/api/upload", uploadRoutes); // Mounting upload routes
+app.use("/api/user", userRoutes); // Mounting user routes
 
+// Starting the server
 app.listen(port, () => {
-  console.log(`Server has started at ${port}`);
+  console.log(`Server has started at ${port}`); // Logging server start message
 });
