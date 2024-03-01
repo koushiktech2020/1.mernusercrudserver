@@ -1,3 +1,5 @@
+Please give me stars if you like my projects.
+
 # User Management API
 
 This API provides endpoints for managing users, including operations such as adding new users, retrieving user details, updating user information, and deleting users.
