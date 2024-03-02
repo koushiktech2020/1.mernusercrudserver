@@ -1,5 +1,4 @@
 const Users = require("../model/usermodel"); // Importing User model
-const cloudinary = require("../utils/cloudinary"); //Import cloudinary
 
 // Controller function to add a new user
 exports.addNewUser = async (req, res) => {
@@ -83,9 +82,6 @@ exports.deleteUserData = async (req, res) => {
         message: "User not found",
       });
     }
-
-    // Deleting user's image from cloudinary
-    await cloudinary.uploader.destroy(userData.photopublicid);
 
     // Removing user from database
     await userData.remove();
