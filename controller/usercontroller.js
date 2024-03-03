@@ -21,7 +21,7 @@ exports.addNewUser = async (req, res) => {
 // Controller function to get all users
 exports.getAllUser = async (req, res) => {
   try {
-    const allUser = await Users.find({}); // Finding all users in the database
+    const allUser = await Users.find({}).populate("uploadedimage"); // Finding all users in the database
 
     // Sending success response with all users data
     res.status(200).json({
@@ -38,7 +38,9 @@ exports.getAllUser = async (req, res) => {
 // Controller function to get details of a user
 exports.getUserDetails = async (req, res) => {
   try {
-    const userResult = await Users.findById(req.params.id); // Finding user by ID
+    const userResult = await Users.findById(req.params.id).populate(
+      "uploadedimage"
+    ); // Finding user by ID
 
     // Sending success response with user details
     res.status(200).json({

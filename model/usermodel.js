@@ -7,11 +7,13 @@ const userSchema = mongoose.Schema(
     address: String,
     role: String,
     phone: String,
-    photopublicid: String,
-    photopublicurl: String,
+    uploadedimage: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Upload",
+    },
   },
   { versionKey: false },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Users", userSchema);
+module.exports = mongoose.model("User", userSchema);
